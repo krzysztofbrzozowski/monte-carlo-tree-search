@@ -3,10 +3,10 @@ class MonteCarloTreeSearch(object):
 
     def __init__(self, node):
         """
-        MonteCarloTreeSearchNode
+        MCTSNode
         Parameters
         ----------
-        node : mctspy.tree.nodes.MonteCarloTreeSearchNode
+        node : mctspy.tree.nodes.MCTSNode
         """
         self.root = node
 

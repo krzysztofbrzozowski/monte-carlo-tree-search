@@ -3,14 +3,14 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 
-class MonteCarloTreeSearchNode(ABC):
+class MCTSNode(ABC):
 
     def __init__(self, state, parent=None):
         """
         Parameters
         ----------
         state : mctspy.games.common.TwoPlayersAbstractGameState
-        parent : MonteCarloTreeSearchNode
+        parent : MCTSNode
         """
         self.state = state
         self.parent = parent
@@ -68,7 +68,7 @@ class MonteCarloTreeSearchNode(ABC):
         return possible_moves[np.random.randint(len(possible_moves))]
 
 
-class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
+class TwoPlayersGameMonteCarloTreeSearchNode(MCTSNode):
 
     def __init__(self, state, parent=None):
         super().__init__(state, parent)

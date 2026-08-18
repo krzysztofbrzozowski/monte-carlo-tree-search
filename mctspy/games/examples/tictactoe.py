@@ -33,29 +33,71 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
 
     @property
     def game_result(self):
-        # check if game is over
+        # Check horizontal and vertical wins
         for i in range(self.board_size - self.win + 1):
-            rowsum = np.sum(self.board[i:i+self.win], 0)
-            colsum = np.sum(self.board[:,i:i+self.win], 1)
+
+            # Take self.win consecutive rows and sum vertically
+            #
+            # Example:
+            # 0  1  0  0 -1
+            # 0  1 -1  0  0
+            # 0  1  0 -1  0
+            # ↓  ↓  ↓  ↓  ↓
+            # 0  3 -1 -1 -1
+            rowsum = np.sum(self.board[i:i + self.win], axis=0)
+
+            # Take self.win consecutive columns and sum horizontally
+            #
+            # Example:
+            # 1  0  0  → 1
+            # 0  0  1  → 1
+            # 1  1  1  → 3
+            # 0  0  0  → 0
+            # -1 0  0  → -1
+            colsum = np.sum(self.board[:, i:i + self.win], axis=1)
+
             if rowsum.max() == self.win or colsum.max() == self.win:
                 return self.x
+
             if rowsum.min() == -self.win or colsum.min() == -self.win:
                 return self.o
+
+        # Check every possible self.win x self.win sub-board
         for i in range(self.board_size - self.win + 1):
             for j in range(self.board_size - self.win + 1):
-                sub = self.board[i:i+self.win,j:j+self.win]
+
+                sub = self.board[
+                    i:i + self.win,
+                    j:j + self.win
+                ]
+
+                # Main diagonal, top-left -> bottom-right
+                #s
+                # X . .
+                # . X .
+                # . . X
                 diag_sum_tl = sub.trace()
-                diag_sum_tr = sub[::-1].trace()        
+
+                # Reverse rows and trace to check the opposite diagonal
+                #
+                # . . X
+                # . X .
+                # X . .
+                diag_sum_tr = sub[::-1].trace()
+
                 if diag_sum_tl == self.win or diag_sum_tr == self.win:
                     return self.x
+
                 if diag_sum_tl == -self.win or diag_sum_tr == -self.win:
                     return self.o
 
-        # draw
+        # Board is full and nobody won
+        # If there is at least one 0 -> False -> do not enter the if
+        # If there are no 0s         -> True  -> enter the if
         if np.all(self.board != 0):
-            return 0.
+            return 0.0
 
-        # if not over - no result
+        # Game is not over
         return None
 
     def is_game_over(self):
