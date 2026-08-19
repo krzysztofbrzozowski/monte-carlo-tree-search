@@ -38,7 +38,7 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
 
             # Take self.win consecutive rows and sum vertically
             #
-            # Example:
+            # Example (5x5):
             # 0  1  0  0 -1
             # 0  1 -1  0  0
             # 0  1  0 -1  0
@@ -121,17 +121,24 @@ class TicTacToeGameState(TwoPlayersAbstractGameState):
         # finally check if board field not occupied ye
         return self.board[move.x_coordinate, move.y_coordinate] == 0
 
+    
     def move(self, move):
+        # Verify if move is legal
         if not self.is_move_legal(move):
             raise ValueError(
                 "move {0} on board {1} is not legal". format(move, self.board)
             )
+        # Copy the board to local variable
         new_board = np.copy(self.board)
+        # Assign to the board the value (v) and the coordinates (x, y)
         new_board[move.x_coordinate, move.y_coordinate] = move.value
+        # Give next move to opponent
         if self.next_to_move == self.x:
             next_to_move = self.o
         else:
             next_to_move = self.x
+        # Create and return a new independent game-state object
+        # The current state stays unchanged because new_board is a copy of self.board
         return type(self)(new_board, next_to_move, self.win)
 
     def get_legal_actions(self):

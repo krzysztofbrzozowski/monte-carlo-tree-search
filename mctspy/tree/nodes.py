@@ -6,12 +6,6 @@ from abc import ABC, abstractmethod
 class MCTSNode(ABC):
 
     def __init__(self, state, parent=None):
-        """
-        Parameters
-        ----------
-        state : mctspy.games.common.TwoPlayersAbstractGameState
-        parent : MCTSNode
-        """
         self.state = state
         self.parent = parent
         self.children = []
@@ -19,20 +13,14 @@ class MCTSNode(ABC):
     @property
     @abstractmethod
     def untried_actions(self):
-        """
-
-        Returns
-        -------
-        list of mctspy.games.common.AbstractGameAction
-
-        """
         pass
-
+    # current_node.q AttributeError("'NoneType' object has no attribute 'state'")
     @property
     @abstractmethod
     def q(self):
         pass
-
+    
+    # Proerty gives us during the initial state the value of it
     @property
     @abstractmethod
     def n(self):
@@ -68,7 +56,7 @@ class MCTSNode(ABC):
         return possible_moves[np.random.randint(len(possible_moves))]
 
 
-class TwoPlayersGameMonteCarloTreeSearchNode(MCTSNode):
+class TwoPlayerMCTSNode(MCTSNode):
 
     def __init__(self, state, parent=None):
         super().__init__(state, parent)
@@ -93,10 +81,17 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MCTSNode):
         return self._number_of_visits
 
     def expand(self):
+        # From possible moves -> get last one / pop -> assign to action
+        # e.g. action = x:2 y:2 v:1 -> v (next player to move)
         action = self.untried_actions.pop()
+        # Inside create copy od current state
+        # and return new obiect with applied move, old one remains unchanged
         next_state = self.state.move(action)
-        child_node = TwoPlayersGameMonteCarloTreeSearchNode(
-            next_state, parent=self
+        # Create new object of TwoPlayerMCTSNode and assign to it:
+        #   next_state <- independent game-state (board) object
+        #   parent <- current_node will be parent, in first iteration root
+        child_node = TwoPlayerMCTSNode(
+            state=next_state, parent=self
         )
         self.children.append(child_node)
         return child_node
@@ -105,7 +100,10 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MCTSNode):
         return self.state.is_game_over()
 
     def rollout(self):
+        # Assign the child_node.state -> next_state from above methid
         current_rollout_state = self.state
+        # Play the game until a terminal state is reached
+        # Here is the same logic, move is only done in new object
         while not current_rollout_state.is_game_over():
             possible_moves = current_rollout_state.get_legal_actions()
             action = self.rollout_policy(possible_moves)
