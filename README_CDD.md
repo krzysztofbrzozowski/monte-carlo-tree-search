@@ -19,6 +19,8 @@ Now inside 3.
     -> get the legal actions for current move
     -> give a "virtual" move (on a copy of the object)
 -> in this object play the game until the termination and write the result to reward
+-> backpropagate the results from bottom to the top
+-> find the best node and make this move
 
 # Notes
 ## Note for the game coordinates

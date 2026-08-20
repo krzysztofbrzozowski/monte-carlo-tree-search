@@ -12,3 +12,4 @@ build/
 dist/
 mctspy.egg-info/
 .venv
+.DS_Store

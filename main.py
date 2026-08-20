@@ -37,7 +37,12 @@ while board_state.game_result is None:
     #  ├─ node_0
     #  ├─ node_1
     #  ├─ node_2
-    #  └─ node_3
+    #  ├─ node_3
+    #  ├─ node_4
+    #  ├─ node_5
+    #  ├─ node_6
+    #  ├─ node_7
+    #  └─ node_8
     root = TwoPlayerMCTSNode(state=board_state)
     # -> MonteCarloTreeSearch is a high-level controller around the
     # TwoPlayerMCTSNode tree
@@ -45,7 +50,8 @@ while board_state.game_result is None:
     # backpropagation, and final move choice
     mcts = MonteCarloTreeSearch(root)
     # For debugging use simulation_number
-    best_node = mcts.best_action(simulations_number=2)
+    # 
+    best_node = mcts.best_action(simulations_number=12)
 
     # update board
     board_state = best_node.state

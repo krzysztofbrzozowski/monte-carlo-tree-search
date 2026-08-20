@@ -46,6 +46,40 @@ class MCTSNode(ABC):
         return len(self.untried_actions) == 0
 
     def best_child(self, c_param=1.4):
+        # c_param controls how strongly MCTS prefers exploration
+        # 1.4 is a common default value because it is close to sqrt(2) ≈ 1.414
+        # ---
+        # c.q / c.n
+        #   -> EXPLOITATION - korzystanie z ruchów, które już wyglądają na dobre
+        #   -> tells how good this child was in previous simulations
+        #   -> q (wins - loses) / n (number of visits of this child)
+        #   -> gives a hint how good or bad general this child is
+        #
+        # c_param * sqrt(2 * log(self.n) / c.n)
+        #   -> EXPLORATION - sprawdzanie ruchów, które były jeszcze mało testowane 
+        #   -> gives extra score to children that were visited less often
+        #   -> np.log(self.n) = number of visits of the parent node
+                # >>> np.log(1)
+                # np.float64(0.0)
+                # >>> np.log(2)
+                # np.float64(0.6931471805599453)
+                # >>> np.log(100)
+                # np.float64(4.605170185988092)
+                # >>> np.log(1000)
+                # np.float64(6.907755278982137)
+                # >>> np.log(10000)
+                # np.float64(9.210340371976184)
+                # >>> np.log(100000)
+                # np.float64(11.512925464970229)
+        #   -> c.n = number of visits of this child
+        #       odwrotnie proporcjonalny składnik
+        #       - dzielenie przez dużą liczbę -> mniejszy wynik końcowy
+        #       - dzielenie przez małą liczbę -> wiekszy wynik końcowy
+        #   -> bigger c_param -> more exploration
+        #   -> c_param = 0 -> use exploitation (first part of equation) only
+        #
+        # Final intuition:
+        #   good child + not explored enough child can both get selected
         choices_weights = [
             (c.q / c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n))
             for c in self.children
@@ -72,6 +106,14 @@ class TwoPlayerMCTSNode(MCTSNode):
 
     @property
     def q(self):
+        # For wins:
+        #   -> parent will give next move to -1 or 1
+        #   -> took all results for [-1 or +1]
+        # For loses:
+        #   -> parent will give next move to -1 or 1
+        #   -> took all results for -1 (opposite) * [-1 or +1]
+        # Return:
+        #   general balance wins - loses
         wins = self._results[self.parent.state.next_to_move]
         loses = self._results[-1 * self.parent.state.next_to_move]
         return wins - loses
@@ -88,8 +130,8 @@ class TwoPlayerMCTSNode(MCTSNode):
         # and return new obiect with applied move, old one remains unchanged
         next_state = self.state.move(action)
         # Create new object of TwoPlayerMCTSNode and assign to it:
-        #   next_state <- independent game-state (board) object
-        #   parent <- current_node will be parent, in first iteration root
+        #   -> next_state - independent game-state (board) object
+        #   -> parent - current_node will be parent (in first iteration root)
         child_node = TwoPlayerMCTSNode(
             state=next_state, parent=self
         )
